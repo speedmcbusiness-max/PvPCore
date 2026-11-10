@@ -1,0 +1,640 @@
+# VPerPlayerKit configuration
+# Menu names, materials and lore live in menus.yml. All text supports MiniMessage.
+
+# Number of personal kit slots (1-14). 7 matches the classic Kit Menu layout; slots are set in menus.yml
+max-kits: 7
+
+storage:
+  # sqlite = single server, mysql = shared between servers (cross-server kits)
+  type: sqlite
+  sqlite-file: kits.db
+  mysql:
+    host: localhost
+    port: 3306
+    database: vperplayerkit
+    username: root
+    password: ""
+    use-ssl: false
+
+load-kit:
+  clear-inventory: true
+  heal: true
+  sync-enderchest: true      # copy the kit's saved enderchest into the vanilla enderchest
+  sound: entity.experience_orb.pickup   # namespaced sound key, empty string disables
+
+notifications:
+  broadcast-kit-load: false      # tell everyone when someone loads a personal kit
+  broadcast-public-kit: false    # tell everyone when someone loads a public kit
+  # players with perplayerkit.notifications.bypass never trigger these broadcasts
+
+share:
+  code-length: 6
+
+rtpq:
+  world: world                  # the world the RTP queue, FFA and Gladiator fight in (set this to YOUR world's name)
+  # Optional: a dedicated world for a biome, e.g.  plains: my_plains_world . Leave empty to find the biome inside rtpq.world.
+  worlds: {}
+  rtp-radius: 5000            # random teleport range around 0,0 in those worlds
+  arena-size: 250             # danger zone is a square of this many blocks
+  rebuild:
+    between-rounds: true        # the arena is rebuilt (blocks, crystals, drops) before every new round of a duel
+  min-arena-distance: 400     # arenas (and new RTPs) stay at least this far from other duels
+  spawn-distance: 25          # each player starts this many blocks from the arena center
+  countdown-seconds: 3
+  winner-auto-requeue: true   # winner goes straight back into the queue (same kit and biome) for a new arena
+  match-target: 2             # first to 2 kills
+  test-target: 3              # first to 3 kills for tier tests
+  auto-equip-totem: false     # false (default) = a totem only works while it is in a hand. true = a lethal hit moves one from the inventory into the offhand
+  zone:                       # the danger zone starts at arena-size and shrinks/moves like a battle royale ring
+    shapes: [square, circle]  # picked at random per match, use [circle] or [square] to force one
+    min-radius: 40            # it stops shrinking at this radius
+    shrink-start-seconds: 60  # time before the first shrink
+    shrink-duration-seconds: 25
+    hold-seconds: 20          # pause between shrinks
+    shrink-factor: 0.7        # each shrink keeps this share of the radius
+    beacons: true             # red beam columns on the edge (they move with the zone)
+    beam-count: 16
+    beam-block: RED_STAINED_GLASS
+    beam-range: 160           # beams are re-created when a player is closer than this to their spot
+    particles: true           # red particles on the edge near the player (square and circle)
+  danger-zone:
+    grace-seconds: 3          # warning time before damage starts
+    damage: 10.0              # health points per second outside (10 = 5 hearts)
+
+rtp:
+  # /rtp <biome> finds that biome in rtpq.world (or the biome's own world from rtpq.worlds). /qrtp teleports inside the world you are in
+  # (only those worlds, nether/end/lobby are rejected unless quick-any-world is true).
+  biomes:                       # the biome choices (/rtp, the RTP queue, FFA, Gladiator). Values are Minecraft biome names.
+    plains: [plains, sunflower_plains, meadow]
+    desert: [desert]
+    badlands: [badlands, eroded_badlands, wooded_badlands]
+    snow: [snowy_plains, snowy_taiga, ice_spikes, snowy_slopes]
+    mushroom: [mushroom_fields]
+  biome-search-radius: 3000     # how far around a random point a biome is searched (mushroom islands are rare, raise it)
+  radius: 5000                 # random range around the world border center
+  min-distance: 500            # /qrtp lands at least this far from where you stood
+  cooldown-seconds: 5          # perplayerkit.rtp.bypass skips it
+  attempts: 40
+  quick-any-world: false
+
+scorebar:                       # the duel score at the top of the screen: [head] yourScore - opponentScore [head]
+  enabled: true
+  format: "<head:{player}> <white><bold>{score}</bold></white> <dark_gray>-</dark_gray> <white><bold>{opponent_score}</bold></white> <head:{opponent}>"
+  # {player} {opponent} {score} {opponent_score} {target}. <head:name> shows the player head (Paper 1.21.9+), on older
+  # servers the names are shown instead. Remove the <head:..> parts if you only want numbers.
+  heads: true
+  color: WHITE                  # BossBar color: PINK BLUE RED GREEN YELLOW PURPLE WHITE
+  overlay: PROGRESS             # PROGRESS NOTCHED_6 NOTCHED_10 NOTCHED_12 NOTCHED_20
+  progress: leader              # leader = fills up the closer someone is to winning, full = always full
+
+announce:
+  win-actionbar: true           # "<player> Won" above the hotbar after a duel / FFA / Gladiator
+  win-broadcast-duel: true      # chat broadcast of a duel win
+  win-broadcast-gladiator: true # chat broadcast of a Gladiator win
+  high-tier:
+    enabled: true               # announce when a high tier player joins a duel, FFA or Gladiator
+    min-tier: LT2               # LT2, HT2, LT1 and HT1 are announced
+    max-names: 5                # opponents listed before "and N more"
+
+spectator:
+  enabled: true
+  allow-duel: true
+  allow-ffa: true
+  allow-gladiator: true
+  max-distance: 200             # spectators are pulled back when they fly further than this from their target
+  block-commands: true          # spectators can only use the commands below
+  allowed-commands: [spec, spectator, leave]
+  notify-target: false          # tell the watched player when someone starts spectating
+
+event:
+  min-players: 2                # /event start needs this many players in the lobby
+  max-players: 50
+
+ffa:
+  mode: rtp                     # rtp = random arena in the RTP worlds like duels, arenas = the spawn-block arenas from /ffartp
+  biome: auto                   # rtp mode: which RTP world (auto or a key from rtp.biomes)
+  spawn-radius: 60              # rtp mode: players are spread on a ring this far from the center
+  zone:                         # rtp mode: same danger zone as duels, but bigger
+    radius: 500                 # starting radius of the arena
+    shapes: [square, circle]
+    min-radius: 60
+    shrink-start-seconds: 90
+    shrink-duration-seconds: 60
+    hold-seconds: 30
+    shrink-factor: 0.7
+    beacons: true
+    beam-count: 24
+    beam-block: RED_STAINED_GLASS
+    beam-range: 160           # beams are re-created when a player is closer than this to their spot
+    particles: true           # red particles on the edge near the player (square and circle)
+  schedule:
+    enabled: true               # start a FFA automatically on a timer
+    interval-seconds: 120       # every 2 minutes: queued players and everyone standing in the lobby area are teleported in
+  lobby-radius: 10              # size of the lobby area around /ffartp lobby
+  min-players: 2                # the countdown starts once this many are queued
+  max-players: 20               # starts immediately when this many are queued (also limited by the arena's spawn blocks)
+  start-delay-seconds: 20
+  countdown-seconds: 5
+  max-duration-seconds: 600     # 0 = no limit, a draw is declared when time runs out
+  protect-radius: 40            # blocks around the spawn blocks that are protected during a FFA
+  allow-building: false         # false = no placing/breaking and crystals do not destroy blocks
+
+totemprac:
+  help:                         # /totemprac help  and  /admintotemprac help
+    player:
+      - "<gold><bold>Totem practice"
+      - "<yellow>/totemprac</yellow> <gray>- go to the practice world (run it again to leave)"
+      - "<yellow>Button</yellow> <gray>- right click the button to start, right click again to stop. Only you are affected"
+      - "<yellow>/totemprac spawn start</yellow> <gray>- spawns an aim target block in front of you, it grows when you aim at it"
+      - "<yellow>/totemprac spawn stop</yellow> <gray>- removes the target"
+    admin:
+      - "<gold><bold>Totem practice setup (admin)"
+      - "<yellow>1.</yellow> <white>/admintotemprac setting spawn</white> <gray>- stand where players should arrive and run it"
+      - "<yellow>2.</yellow> <white>/admintotemprac create</white> <gray>- you get a <white>gold axe</white>: left click a block = corner 1, right click a block = corner 2 (the damage area)"
+      - "<yellow>3.</yellow> <white>/admintotemprac button</white> <gray>- you get a <white>blaze rod</white>: right click the button players will press"
+      - "<yellow>4.</yellow> <white>/admintotemprac setting <damage|hits|interval|gap|prepare> <value></white> <gray>- tune the practice"
+      - "<yellow>5.</yellow> <white>/admintotemprac delete</white> <gray>- deletes the damage area"
+  target:                       # /totemprac spawn start
+    block: DIAMOND_BLOCK        # any block material
+    size: 0.6                   # normal size in blocks
+    grow-multiplier: 1.25       # size while you aim at it (1.25 = a little bigger)
+    distance: 6.0               # how far in front of you it appears
+    max-distance: 40.0          # how far away aiming still counts
+    animation-ticks: 3          # growing/shrinking smoothness
+
+discord:
+  enabled: false                # needs a bot token (https://discord.com/developers/applications)
+  token: ""
+  guild-id: ""                  # your server ID, makes the slash commands appear immediately
+  announce-channel-id: ""       # channel where tier promotions are announced
+  code-length: 6
+  code-expire-seconds: 300
+
+results:                        # Discord tier results (needs the Discord bot, see discord:)
+  normal-channel-id: ""         # channel for normal results (the embed, tiers up to LT3)
+  high-channel-id: ""           # channel for high results (text, HT3 and up). Blank = announce-channel-id
+  high-min-tier: HT3            # a result is "high" when the old or the new tier is at least this
+  default-region: NA            # shown when a player has not set one with /region
+  regions: [NA, EU, AS, AU, SA, AF, ME]
+  auto-tester: "Auto Tester"    # shown as Tester for results from queue tier tests
+  post-auto-promotions: true    # post queue tier test promotions
+  post-auto-failures: true      # post queue tier tests that used up the last chance
+  reactions: ["👑", "🥳", "😱", "😭", "😂", "💀"]   # the bot adds these to every result
+  embed-color: "#FF0000"
+  skin-url: "https://mc-heads.net/body/{name}/right"      # thumbnail of the normal result ({name}, {uuid})
+  avatar-url: "https://mc-heads.net/avatar/{name}/64"     # small icon next to the title
+  normal:
+    author-title: "{player}'s Test Results 🏆"
+    label-tester: "Tester:"
+    label-region: "Region:"
+    label-username: "Username:"
+    label-previous: "Previous Rank:"
+    label-earned: "Rank Earned:"
+  high:
+    header: "{mention} - **{player} - {headline}**"
+    headline-passed: "Passed {tier}"
+    headline-failed: "Failed {attempted}"
+    fights-title: "__{tier} Fights:__"
+    fight-line: "> {line}"
+    outcome-promoted: "*Promoted To **{tier}***"
+    outcome-demoted: "*Demoted To **{tier}***"
+    outcome-failed: "*Stays **{tier}***"
+
+placeholders:
+  skin-url: "https://mc-heads.net/body/{name}/right"      # %vperplayerkit_top1_skin% (full body picture, {name} / {uuid})
+  head-url: "https://mc-heads.net/avatar/{name}/128"      # %vperplayerkit_top1_head% (head picture)
+  empty-skin-url: ""                                       # used when a top position is empty
+  refresh-seconds: 60           # how often PlaceholderAPI values are refreshed from the database
+
+report:
+  reasons: [Cheating, Macro, AutoTotem, Hacks]   # choices in the /report dialog (players can also type their own)
+  max-reason-length: 64
+  cooldown-seconds: 60          # perplayerkit.report.bypass skips it
+  notify-staff: true            # tell staff (perplayerkit.sus) about new reports
+
+offend:
+  reasons: [Cheating, Macro, AutoTotem, Hacks]
+  allow-custom-reason: false    # true = /offend accepts any text as the reason
+  ban-command: ""               # OPTIONAL real ban run by the console on top of the restriction below ({player} {reason} {staff}). Blank = only the restriction
+  commands: {}                  # a different command per reason, e.g.  Macro: "tempban {player} 30d {reason}"
+  broadcast: true
+
+banned:                         # what /offend does: the player stays online and can play, but...
+  hide-others: true             # ...cannot see any other player
+  tag: "&#FF0000&nBANNED"       # shown above their nametag for everybody else (&-colors and &#RRGGBB hex)
+  tag-offset: 0.55              # how far above the head the text floats
+  hide-chat: true               # their chat only reaches other banned players and staff (perplayerkit.sus)
+  can-hurt-players: false       # banned players cannot damage other players
+
+nametag:                        # the nametag and tab list entry of every player
+  enabled: true
+  format: "{tier} &7| &f{player} &7| {flag}  {rank}"   # {tier} {player} {flag} {rank}, &-colors and &#RRGGBB hex
+  flag-placeholder: ""          # a PlaceholderAPI placeholder of your flags plugin, e.g. "%yourflags_flag%". Blank = no flag
+
+web:                            # the rank editor page behind /v:rank editor
+  enabled: true
+  bind: 0.0.0.0
+  port: 8123                    # open this port, or put https in front of it with your own reverse proxy
+  public-url: ""                # e.g. "https://ranks.example.com" or "http://1.2.3.4:8123" (blank = server-ip:port)
+  token-minutes: 15             # how long an editor link works
+
+freeze:
+  allow-chat: true              # frozen players can still talk to staff
+  allowed-commands: [msg, r, reply, w, tell]
+  logout-command: ""            # run when a frozen player disconnects, e.g. "ban {player} Left while frozen". Blank = nothing
+
+ss:
+  teleport-staff: true          # /ss also teleports you to the ss spawn (and back when it ends)
+
+autocheck:
+  max-pops: 10
+  interval-ticks: 30            # pause between two pops
+  max-wait-ticks: 60            # how long to wait for a new totem in hand
+  suspicious-ticks: 4           # re-equipping a totem in this many ticks or fewer looks like AutoTotem (1 tick = 50 ms)
+  suspicious-count: 1           # how many pops must look suspicious for the verdict
+
+tpa:
+  expire-seconds: 60
+  delay-seconds: 3              # standing still time before the teleport (0 = instant)
+  cancel-on-move: true
+  cooldown-seconds: 5
+  ignore-max-seconds: 604800    # longest /tpaignore time (7 days)
+
+back:
+  track-death: true             # /back also returns to where you died
+  keep-after-logout: false
+
+match-commands:
+  # During a queue duel or a Gladiator fight only these commands work. The kit commands
+  # (/kit, /k, /kit1-14, /lsk, /kitroom, /pk) are always disabled there.
+  block-all-others: true       # false = only the kit commands are blocked, everything else still works
+  allowed: [regear, leave, state]
+
+gladiator:
+  min-tier: LT2                 # lowest tier allowed to host (owners/YouTubers use perplayerkit.gladiator.bypass)
+  join-requires-tier: false     # true = opponents need the tier as well
+  use-host-kit: false           # false = the host picks a kit in the dialog, everyone else uses the kit they selected in the Kit Menu
+                                # true  = everybody fights with the kit the host picked
+  countdown-seconds: 5
+
+tier:
+  progress:                   # progress % a queue win gives towards the next tier test
+    base: 15
+    per-tier-difference: 3    # + for every tier the opponent is above you, - for every tier below
+    per-opponent-totem-pop: 1
+    opponent-totem-pop-max: 5
+    per-own-totem-pop-penalty: 0.5
+    per-kill: 1.5
+    min-gain: 3
+    max-gain: 40
+    # fast wins add up to +5, very slow ones subtract 2 (built in)
+
+messages:
+  prefix: "<#FF55FF><bold>Kits</bold> <dark_gray>»</dark_gray> "
+  no-permission: "{prefix}<red>You do not have permission to do that."
+  players-only: "{prefix}<red>Only players can use this command."
+  database-error: "{prefix}<red>Database error, please tell an admin."
+  kit-loaded: "{prefix}<green>Loaded <white>Kit {n}</white>."
+  kit-empty: "{prefix}<red>Kit {n} is empty. Right click it in <white>/kit</white> to edit it."
+  kit-selected: "{prefix}<green>Selected <white>Kit {n}</white> for the queue."
+  kit-saved: "{prefix}<green>Saved <white>Kit {n}</white>."
+  enderchest-saved: "{prefix}<green>Saved the enderchest for <white>Kit {n}</white>."
+  no-selected: "{prefix}<red>You have not loaded a kit yet."
+  imported: "{prefix}<green>Imported your current inventory into the editor. Press <white>Save</white> to keep it."
+  share-created: "{prefix}<green>Share code: <click:copy_to_clipboard:{code}><hover:show_text:'Click to copy'><yellow><bold>{code}</bold></yellow></hover></click> <gray>(click to copy)"
+  share-invalid: "{prefix}<red>That share code does not exist."
+  share-usage: "{prefix}<red>Usage: /kit share-code <code>"
+  share-imported: "{prefix}<green>Imported the shared kit into <white>Kit {n}</white>."
+  healed: "{prefix}<green>You have been healed."
+  repaired: "{prefix}<green>Repaired {count} item(s)."
+  nothing-to-repair: "{prefix}<red>Nothing to repair."
+  regeared: "{prefix}<green>Regeared from <white>Kit {n}</white>."
+  public-loaded: "{prefix}<green>Loaded public kit <white>{name}</white>."
+  public-missing: "{prefix}<red>No public kit named <white>{name}</white>."
+  public-created: "{prefix}<green>Created public kit <white>{name}</white> from your inventory."
+  public-exists: "{prefix}<red>A public kit named <white>{name}</white> already exists."
+  public-deleted: "{prefix}<green>Deleted public kit <white>{name}</white>."
+  public-saved: "{prefix}<green>Saved public kit <white>{name}</white>."
+  public-usage: "{prefix}<red>Usage: /pk <kit> | /pk create|edit|delete <kit>"
+  bad-name: "{prefix}<red>Kit names may only contain letters, numbers, - and _ (max 24)."
+  kitroom-saved: "{prefix}<green>Saved kit room category <white>{category}</white>."
+  kitroom-usage: "{prefix}<red>Usage: /kitroom admin <category>"
+  kitroom-unknown: "{prefix}<red>Unknown category. Valid: <white>{list}"
+  refilled: "{prefix}<green>Refilled your stacks."
+  trim-applied: "{prefix}<green>Applied trim to {count} armor piece(s)."
+  trim-removed: "{prefix}<green>Removed trims from {count} armor piece(s)."
+  trim-choose: "{prefix}<red>Pick a pattern and a material first."
+  banner-saved: "{prefix}<green>Banner saved as the icon for <white>Kit {n}</white>."
+  banner-max: "{prefix}<red>A banner can have at most 6 layers."
+  broadcast-kit: "{prefix}<white>{player}</white> <gray>loaded a kit."
+  broadcast-public: "{prefix}<white>{player}</white> <gray>loaded the public kit <white>{name}</white>."
+  queue-busy: "{prefix}<red>You are already in a match."
+  queue-already: "{prefix}<red>You are already in the queue."
+  queue-no-kit: "{prefix}<red>Select or save a kit first (<white>/kit</white>)."
+  queue-joined: "{prefix}<green>Joined the queue with <white>Kit {n}</white> <gray>(biome: {biome})"
+  queue-left: "{prefix}<yellow>You left the queue."
+  queue-test-notice: "{prefix}<gold>This will be your tier test: first to 3 against a player of your tier."
+  match-found: "{prefix}<green>Match found against <white>{opponent}</white>! Teleporting..."
+  rtpq-no-world: "{prefix}<red>No RTP world is available for that biome."
+  rtpq-no-arena: "{prefix}<red>Could not find a safe arena, please queue again."
+  opponent-left: "{prefix}<red>Your opponent left before the match started."
+  match-start: "{prefix}<gray>Match vs <white>{opponent}</white>, first to <white>{target}</white>."
+  tier-test-start: "{prefix}<gold>TIER TEST vs <white>{opponent}</white>, first to <white>{target}</white>."
+  round-scored: "{prefix}<white>{player}</white> <gray>scored! <white>{a} : {b}"
+  match-over: "{prefix}<gray>Match finished <white>{a} : {b}</white> vs {opponent}."
+  match-over-forfeit: "{prefix}<gray>Match finished by forfeit <white>{a} : {b}</white> vs {opponent}."
+  danger-warning: "{prefix}<red><bold>You left the arena!</bold> <gray>Go back to the safe area or you will take damage."
+  danger-damage: "<red>You are in the danger zone! Return to the arena!"
+  no-teleport-in-duel: "{prefix}<red>You cannot teleport away during a duel."
+  tier-promoted: "{prefix}<green>You passed the tier test! New tier: {tier}"
+  tier-promoted-broadcast: "{prefix}<white>{player}</white> <gray>reached {tier}<gray>!"
+  tier-test-failed: "{prefix}<red>Tier test failed. <gray>Chances left: <white>{chances}"
+  tier-test-failed-reset: "{prefix}<red>Tier test failed. <gray>Your progress dropped to <white>{progress}%</white>."
+  tier-progress: "{prefix}<green>+{gain}% tier progress <gray>(now {progress}%)"
+  tier-test-ready: "{prefix}<gold>Your tier progress is 100%! Your next queue match is a tier test."
+  lobby-set: "{prefix}<green>Lobby spawn set to your location."
+  leaderboard-usage: "{prefix}<red>Usage: /leaderboard <overall|kills|victory|defeat|matchplayed>"
+  tier-show: "{prefix}<white>{player}</white><gray>: {tier} <dark_gray>({points} pts, {progress}% to next test)"
+  result-usage: "{prefix}<red>Usage: /result <player> <tier> [fight | fight ...]"
+  result-bad-tier: "{prefix}<red>Unknown tier. Use UNRANKED, LT6, HT6 ... LT1, HT1."
+  result-unknown-player: "{prefix}<red>No player named <white>{player}</white> (they must be online or have played a match)."
+  result-set: "{prefix}<green>Set <white>{player}</white> to {tier}"
+  result-notify: "{prefix}<green>Your tier is now {tier}"
+  totemprac-not-set: "{prefix}<red>Totem practice has not been set up yet."
+  totemprac-welcome: "{prefix}<gray>Press the button to start or stop. Run <white>/totemprac</white> again to leave."
+  totemprac-no-area: "{prefix}<red>No damage area has been set (admins: /admintotemprac create)."
+  totemprac-countdown: "{prefix}<yellow>Starting in <white>{n}</white>..."
+  totemprac-started: "{prefix}<green>Totem practice started!"
+  totemprac-stopped: "{prefix}<yellow>Totem practice stopped. Health and totems restored."
+  totemprac-died: "{prefix}<red>You ran out of totems! Practice stopped, health and totems restored."
+  totemprac-same-world: "{prefix}<red>Both corners must be in the same world."
+  totemprac-corner: "{prefix}<gray>Corner {n} set at <white>{x}, {y}, {z}</white>."
+  totemprac-area-set: "{prefix}<green>Totem damage area saved."
+  totemprac-not-a-button: "{prefix}<red>That block is not a button."
+  totemprac-button-set: "{prefix}<green>Button registered. Players can now start and stop practice with it."
+  totemprac-create-help: "{prefix}<gray>Left click a block for corner 1, right click for corner 2 with the gold axe."
+  totemprac-area-deleted: "{prefix}<green>Totem damage area deleted."
+  totemprac-button-help: "{prefix}<gray>Right click the button with the blaze rod to register it."
+  totemprac-admin-usage: "{prefix}<red>Usage: /admintotemprac <create|delete|button|setting> <gray>(setting: damage|hits|interval|gap|prepare <value>, spawn, lobby)"
+  totemprac-settings: "{prefix}<gray>damage <white>{damage}</white>, hits <white>{hits}</white>, interval <white>{interval}</white> ticks, gap <white>{gap}</white> ticks, prepare <white>{prepare}</white>s"
+  totemprac-spawn-set: "{prefix}<green>Totem practice spawn set to your location."
+  totemprac-setting-saved: "{prefix}<green>Set <white>{key}</white> to <white>{value}</white>."
+  spawn-teleported: "{prefix}<green>Teleported to spawn."
+  spawn-in-duel: "{prefix}<red>You cannot use /spawn during a duel."
+  winner-requeued: "{prefix}<green>You won! Your kit is restored and you are back in the queue for a new arena. <gray>(/rtpq leave to stop)"
+  gladiator-usage: "{prefix}<red>Usage: /gladiator <create|join [host]|disband|leave|start>"
+  gladiator-no-access: "{prefix}<red>Gladiator is only for <white>{tier}</white> and above, server owners and YouTubers."
+  gladiator-busy: "{prefix}<red>You are already in a match, queue or Gladiator."
+  gladiator-none: "{prefix}<red>You are not hosting or playing a Gladiator match."
+  gladiator-not-host: "{prefix}<red>Only the host can do that. Use <white>/gladiator leave</white> to leave."
+  gladiator-created: "{prefix}<green>Gladiator match opened! Waiting for opponents. <gray>(/gladiator start to begin early)"
+  gladiator-open: "{prefix}<gold>{host}</gold> <gray>opened a Gladiator match: <white>{a}</white> vs <white>{b}</white> <click:run_command:'/gladiator join {host}'><hover:show_text:'Click to join'><green>[Click to join]</green></hover></click>"
+  gladiator-not-found: "{prefix}<red>That Gladiator match does not exist or is not open."
+  gladiator-already-started: "{prefix}<red>That match has already started."
+  gladiator-team-full: "{prefix}<red>That team is full."
+  gladiator-joined: "{prefix}<green>You joined <white>{host}</white>'s Gladiator match."
+  gladiator-player-joined: "{prefix}<white>{player}</white> <gray>joined the {team}."
+  gladiator-left: "{prefix}<yellow>You left the Gladiator match."
+  gladiator-disbanded: "{prefix}<red>{host}'s Gladiator match was disbanded."
+  gladiator-invite: "{prefix}<white>{host}</white> <gray>invited you to their Gladiator team. <click:run_command:'/gladiator join {host}'><hover:show_text:'Click to accept'><green>[Accept]</green></hover></click>"
+  gladiator-invite-sent: "{prefix}<green>Invited <white>{player}</white>."
+  gladiator-invite-fail: "{prefix}<red>Could not invite <white>{player}</white> (offline, busy or yourself)."
+  gladiator-no-kit: "{prefix}<red>Select a saved kit first (<white>/rtpq</white> > Select-Kit or load one in <white>/kit</white>)."
+  gladiator-need-opponents: "{prefix}<red>You need at least one opponent to start."
+  gladiator-starting: "{prefix}<yellow>Gladiator is starting, finding an arena..."
+  gladiator-cancelled: "{prefix}<red>Not enough players with a kit, the match is open again."
+  gladiator-eliminated: "{prefix}<white>{player}</white> <gray>was knocked out!"
+  gladiator-winner: "{prefix}<gold>{team}</gold> <gray>won the Gladiator match!"
+  gladiator-settings-locked: "{prefix}<red>Settings are locked once the match is open."
+  gladiator-kit-ready: "{prefix}<green>You will fight with your selected kit. <gray>Change it with <white>/gladiator kit</white>."
+  gladiator-select-kit: "{prefix}<yellow>Select your kit: left click a kit in the menu."
+
+  match-command-blocked: "{prefix}<red>You can only use <white>/regear</white>, <white>/leave</white> and <white>/state</white> during a match."
+  match-left: "{prefix}<yellow>You left the match."
+  match-none: "{prefix}<red>You are not in a match, Gladiator or queue."
+  match-preparing: "{prefix}<red>Your match is starting, you cannot leave right now."
+  regeared-match: "{prefix}<green>Kit restored."
+
+  rtp-busy: "{prefix}<red>You cannot random teleport during a match, Gladiator or while queued."
+  rtp-searching: "{prefix}<gray>Searching for a safe spot..."
+  rtp-cooldown: "{prefix}<red>Wait <white>{seconds}s</white> before random teleporting again."
+  rtp-invalid: "{prefix}<red>Choose one of: <white>{list}"
+  rtp-no-world: "{prefix}<red>The <white>{biome}</white> world is not available right now."
+  rtp-world-not-allowed: "{prefix}<red>/qrtp only works in the RTP worlds. Use <white>/rtp</white> first (biomes: {list})."
+  rtp-teleported: "{prefix}<green>Teleported to <white>{biome}</white> <gray>({x}, {y}, {z})"
+  rtp-fail: "{prefix}<red>Could not find a safe spot, try again."
+  totemprac-target-world: "{prefix}<red>Go to the totem practice world first (<white>/totemprac</white>)."
+  totemprac-target-started: "{prefix}<green>Aim target spawned. It grows when you aim at it. <gray>(/totemprac spawn stop to remove)"
+  totemprac-target-stopped: "{prefix}<yellow>Aim target removed."
+  totemprac-target-usage: "{prefix}<red>Usage: /totemprac spawn <start|stop>"
+  ffa-busy: "{prefix}<red>You are already in a queue, match or FFA."
+  ffa-no-kit: "{prefix}<red>Select a saved kit first (<white>/kit</white>, left click a kit)."
+  ffa-joined: "{prefix}<green>Joined the FFA queue <gray>({count} waiting). Use <white>/leave</white> to leave."
+  ffa-left: "{prefix}<yellow>You left the FFA."
+  ffa-countdown: "{prefix}<yellow>FFA starts in <white>{n}s</white> <gray>({count} players queued)"
+  ffa-no-arena: "{prefix}<red>No FFA arena is free right now, still waiting..."
+  ffa-cancelled: "{prefix}<red>Not enough players with a kit, you are back in the queue."
+  ffa-start: "{prefix}<green>FFA started on <white>{arena}</white>! Last player standing wins."
+  ffa-eliminated: "{prefix}<white>{player}</white> <gray>was knocked out! <white>{left}</white> left."
+  ffa-winner: "{prefix}<gold>{player}</gold> <gray>won the FFA!"
+  ffa-draw: "{prefix}<yellow>Time is up, nobody won the FFA."
+  ffa-wand-given: "{prefix}<gray>Right click blocks players should stand on, shift + right click when done."
+  ffa-point-added: "{prefix}<green>Spawn block <white>#{n}</white> added <gray>({x}, {y}, {z})"
+  ffa-point-removed: "{prefix}<yellow>Spawn block removed. <gray>({n} selected)"
+  ffa-bad-world: "{prefix}<red>All spawn blocks must be in the same world."
+  ffa-ask-name: "{prefix}<yellow>Type a name for this FFA arena in chat <gray>({n} spawn blocks, type <white>cancel</white> to abort)"
+  ffa-name-cancelled: "{prefix}<yellow>Cancelled. Your selection is kept."
+  ffa-need-points: "{prefix}<red>Select at least one spawn block first."
+  ffa-created: "{prefix}<green>FFA arena <white>{name}</white> created with <white>{count}</white> spawn blocks."
+  ffa-exists: "{prefix}<red>An FFA arena named <white>{name}</white> already exists."
+  ffa-deleted: "{prefix}<green>Deleted FFA arena <white>{name}</white>."
+  ffa-not-found: "{prefix}<red>No FFA arena named <white>{name}</white>."
+  ffa-list: "{prefix}<gray>FFA arenas: <white>{list}"
+  ffa-usage-admin: "{prefix}<red>Usage: /ffartp <wand|create <name>|del <name>|list|lobby>"
+  zone-shrinking: "{prefix}<red><bold>The danger zone is shrinking and moving!"
+  zone-final: "{prefix}<dark_red><bold>Final zone! It stops shrinking here."
+  ffa-lobby-set: "{prefix}<green>FFA lobby area set to your location. Players within <white>10</white> blocks join automatically when the timer ends."
+  ffa-not-enough: "{prefix}<red>Not enough players for the FFA (need <white>{min}</white>). Next one in about <white>{minutes}</white> min."
+  verify-disabled: "{prefix}<red>Discord linking is not enabled on this server."
+  verify-already: "{prefix}<yellow>You are already linked to <white>{discord}</white>. Use <white>/unverify</white> to unlink."
+  verify-code: "{prefix}<green>Your code: <click:copy_to_clipboard:{code}><hover:show_text:'Click to copy'><yellow><bold>{code}</bold></yellow></hover></click> <gray>Run <white>/verify {code}</white> in our Discord within <white>{minutes}</white> minutes."
+  verify-linked: "{prefix}<green>Your account is now linked to Discord <white>{discord}</white>!"
+  unverify-done: "{prefix}<green>The account was unlinked."
+  unverify-none: "{prefix}<red>That account is not linked."
+  unverify-unknown: "{prefix}<red>No player or Discord user <white>{account}</white> found."
+  unverify-usage: "{prefix}<red>Usage: /unverify <account>"
+  progress-line: "{prefix}{tier} <gray>-></gray> {next} {bar} <white>{percent}%"
+  progress-test: "{prefix}<green>Tier test ready! <gray>Chances left: <white>{chances}"
+  progress-max: "{prefix}<gold>You reached the highest tier: {tier}"
+  tier-congrats-title: "<gold><bold>Congratulations!"
+  tier-congrats-subtitle: "<gray>You reached {tier}"
+  win-actionbar: "<gold><bold>{player} Won"
+  duel-win-broadcast: "{prefix}<gold>{winner}</gold> <gray>won the duel against</gray> <white>{loser}</white> <gray>({a} : {b})"
+  gladiator-win-broadcast: "{prefix}<gold>{team}</gold> <gray>won the Gladiator match hosted by</gray> <white>{host}</white><gray>!"
+  spect-button: "<click:run_command:'/spec {player}'><hover:show_text:'Click to spectate'><yellow>[Spect]</yellow></hover></click>"
+  highlight-more: " <gray>and {n} more</gray>"
+  highlight-duel: "{prefix}{tier} <white>{player}</white> <gray>V/S</gray> <white>{opponent}</white> {spect}"
+  highlight-ffa: "{prefix}{tier} <white>{player}</white> <gray>V/S</gray> <white>{opponents}</white> {spect}"
+  highlight-gladiator: "{prefix}{tier} <white>{player}</white> <gray>V/S</gray> <white>{count} players</white><newline>{spect}"
+  spec-disabled: "{prefix}<red>Spectating is disabled."
+  spec-usage: "{prefix}<red>Usage: /spec <player> <gray>(or /spec leave)"
+  spec-not-found: "{prefix}<red>Player <white>{player}</white> is not online."
+  spec-self: "{prefix}<red>You cannot spectate yourself."
+  spec-not-in-match: "{prefix}<red><white>{player}</white> is not in a match right now."
+  spec-type-disabled: "{prefix}<red>You cannot spectate that kind of match."
+  spec-busy: "{prefix}<red>You cannot spectate while you are queued, in a match or in an event."
+  spec-started: "{prefix}<green>Now spectating <white>{player}</white>. <gray>Use /spec leave or /leave to stop."
+  spec-stopped: "{prefix}<yellow>You stopped spectating."
+  spec-ended: "{prefix}<yellow>The match is over, you were sent back."
+  spec-notify: "{prefix}<gray>{spectator} is now spectating you."
+  spec-command-blocked: "{prefix}<red>You can only use <white>/spec</white> and <white>/leave</white> while spectating."
+  event-usage: "{prefix}<red>Usage: /event [leave]"
+  event-none: "{prefix}<red>There is no event open right now."
+  event-running: "{prefix}<red>The event has already started. You can spectate with <white>/spec <player></white>."
+  event-already-in: "{prefix}<red>You are already in the event."
+  event-busy: "{prefix}<red>Finish your match, queue or spectating first."
+  event-full: "{prefix}<red>The event is full."
+  event-no-spawn: "{prefix}<red>The event spawn is not set (admins: /event setspawn)."
+  event-joined: "{prefix}<green>You joined the event hosted by <white>{host}</white> <gray>({count} players). Use /event leave to leave."
+  event-player-joined: "{prefix}<white>{player}</white> <gray>joined the event ({count})."
+  event-left: "{prefix}<yellow>You left the event."
+  event-not-in: "{prefix}<red>You are not in the event."
+  event-spawn-set: "{prefix}<green>Event spawn set to your location."
+  event-already-open: "{prefix}<red>An event is already open."
+  event-open: "{prefix}<gold><bold>EVENT</bold></gold> <gray>hosted by <white>{host}</white> is open! <click:run_command:'/event'><hover:show_text:'Click to join'><green>[Join]</green></hover></click>"
+  event-not-enough: "{prefix}<red>You need at least <white>{min}</white> players to start."
+  event-start-failed: "{prefix}<red>The event could not start right now (no arena found?)."
+  event-started: "{prefix}<gold><bold>EVENT</bold></gold> <gray>started with <white>{count}</white> players! Last one standing wins."
+  event-cannot-close: "{prefix}<red>The event is running, it ends when someone wins."
+  event-closed: "{prefix}<yellow>The event was closed."
+  event-winner: "{prefix}<gold><bold>EVENT</bold></gold> <white>{player}</white> <gray>won the event hosted by</gray> <white>{host}</white><gray>!"
+  region-show: "{prefix}<gray>Your region: <white>{region}"
+  region-set: "{prefix}<green>Your region is now <white>{region}</white>."
+  region-set-other: "{prefix}<green>Set the region of <white>{player}</white> to <white>{region}</white>."
+  region-invalid: "{prefix}<red>Pick one of: <white>{list}"
+  region-unknown-player: "{prefix}<red>Player <white>{player}</white> is not online."
+  region-usage: "{prefix}<red>Usage: /region <region> <gray>(admins: /region <player> <region>)"
+  player-not-found: "{prefix}<red>Player <white>{player}</white> is not online."
+  report-usage: "{prefix}<red>Usage: /report <player> [reason] <gray>(without a reason a dialog opens)"
+  report-unknown: "{prefix}<red>I do not know a player named <white>{player}</white>."
+  report-self: "{prefix}<red>You cannot report yourself."
+  report-empty: "{prefix}<red>Please give a reason."
+  report-cooldown: "{prefix}<red>Wait <white>{seconds}s</white> before reporting again."
+  report-sent: "{prefix}<green>Thanks, your report about <white>{player}</white> was sent to the staff."
+  report-staff: "{prefix}<red><bold>REPORT</bold></red> <white>{reporter}</white> <gray>reported</gray> <white>{player}</white><gray>:</gray> <yellow>{reason}</yellow> <click:run_command:'/sus'><hover:show_text:'Open /sus'><gold>[/sus]</gold></hover></click>"
+  offend-usage: "{prefix}<red>Usage: /offend <player> <{list}>"
+  offend-bad-reason: "{prefix}<red>Reason must be one of: <white>{list}"
+  offend-done: "{prefix}<green>Banned <white>{player}</white> for <white>{reason}</white>."
+  offend-broadcast: "{prefix}<white>{player}</white> <gray>was banned for</gray> <red>{reason}</red><gray>.</gray>"
+  sus-cleared: "{prefix}<green>Cleared the reports about <white>{player}</white>."
+  sus-offline: "{prefix}<red><white>{player}</white> is not online."
+  sus-teleported: "{prefix}<green>Teleported to <white>{player}</white>."
+  sfmode-on: "{prefix}<green>sfmode on: you are in spectator and cannot change game mode. <gray>/sfmode again to turn it off."
+  sfmode-off: "{prefix}<yellow>sfmode off, your game mode was restored."
+  sfmode-blocked: "{prefix}<red>sfmode is on, you can only be in spectator. Use /sfmode to turn it off."
+  damage-usage: "{prefix}<red>Usage: /damage <player> <amount> <gray>(amount in health points, 2 = 1 heart)"
+  damage-done: "{prefix}<green>Dealt <white>{amount}</white> damage to <white>{player}</white>."
+  autocheck-usage: "{prefix}<red>Usage: /autocheck <player> <totems to pop>"
+  autocheck-in-match: "{prefix}<red><white>{player}</white> is in a match."
+  autocheck-gamemode: "{prefix}<red><white>{player}</white> must be in survival or adventure."
+  autocheck-running: "{prefix}<red>A check is already running on <white>{player}</white>."
+  autocheck-no-totem: "{prefix}<red><white>{player}</white> has no totem in their hands, stopped so they do not die."
+  autocheck-start: "{prefix}<yellow>Checking <white>{player}</white>: popping <white>{count}</white> totem(s)..."
+  autocheck-aborted: "{prefix}<red>The check on <white>{player}</white> was aborted."
+  autocheck-pop: "{prefix}<gray>Pop <white>{n}</white>: re-equipped after <white>{ticks}</white> ticks (<white>{ms}</white> ms) {note}"
+  autocheck-note-none: "<gray>(no totem put back)"
+  autocheck-note-spare: "<gray>(had a spare totem in hand, not measured)"
+  autocheck-note-suspicious: "<red>suspicious"
+  autocheck-note-ok: "<green>ok"
+  autocheck-verdict-suspicious: "<red><bold>SUSPICIOUS (possible AutoTotem)"
+  autocheck-verdict-ok: "<green>looks normal"
+  autocheck-summary: "{prefix}<gray>Result for <white>{player}</white>: average <white>{avg}</white> ticks - {verdict}"
+  freeze-usage: "{prefix}<red>Usage: /freeze <player> and /unfreeze <player>"
+  freeze-already: "{prefix}<red><white>{player}</white> is already frozen."
+  freeze-in-match: "{prefix}<red><white>{player}</white> is in a match."
+  freeze-done: "{prefix}<green>Froze <white>{player}</white>."
+  freeze-you: "{prefix}<red><bold>You were frozen by a staff member.</bold> <gray>Do not log out. You can still use chat to talk to staff."
+  freeze-title: "<red><bold>FROZEN"
+  freeze-subtitle: "<gray>Wait for a staff member"
+  freeze-actionbar: "<red>You are frozen. Do not log out!"
+  freeze-not-frozen: "{prefix}<red><white>{player}</white> is not frozen."
+  unfreeze-done: "{prefix}<green>Unfroze <white>{player}</white>."
+  freeze-released: "{prefix}<green>You are no longer frozen."
+  freeze-logout: "{prefix}<red><white>{player}</white> logged out while frozen!"
+  freeze-command-blocked: "{prefix}<red>You cannot use commands while frozen."
+  ss-usage: "{prefix}<red>Usage: /ss <player> <gray>(run it again to send them back)"
+  ss-self: "{prefix}<red>You cannot screenshare yourself."
+  ss-no-spawn: "{prefix}<red>The ss spawn is not set. Stand there and run <white>/ssspawn set</white>."
+  ss-busy: "{prefix}<red><white>{player}</white> is in a match or queue."
+  ss-started: "{prefix}<green><white>{player}</white> is frozen at the ss spawn. Run <white>/ss {player}</white> again to send them back."
+  ss-ended: "{prefix}<green>The screenshare is over, you were sent back."
+  ss-ended-staff: "{prefix}<green><white>{player}</white> was sent back to where they were."
+  ss-you: "{prefix}<red><bold>Screenshare:</bold> <gray>do not move or log out, a staff member will talk to you."
+  ss-title: "<red><bold>SCREENSHARE"
+  ss-subtitle: "<gray>Do not move or log out"
+  ss-spawn-set: "{prefix}<green>Screenshare spawn set to your location."
+  ssspawn-usage: "{prefix}<red>Usage: /ssspawn set"
+  tpa-usage: "{prefix}<red>Usage: /tpa <player> or /tpahere <player>"
+  tpa-not-found: "{prefix}<red>Player <white>{player}</white> is not online."
+  tpa-self: "{prefix}<red>You cannot teleport to yourself."
+  tpa-busy-self: "{prefix}<red>You cannot teleport right now (match, queue, event, spectating or frozen)."
+  tpa-busy-target: "{prefix}<red><white>{player}</white> cannot be teleported to right now."
+  tpa-ignored: "{prefix}<red><white>{player}</white> is not accepting teleport requests."
+  tpa-cooldown: "{prefix}<red>Wait <white>{seconds}s</white> before sending another request."
+  tpa-sent-auto: "{prefix}<green><white>{player}</white> accepts requests automatically."
+  tpa-auto-accepted: "{prefix}<gray>Auto accepted the request of <white>{player}</white>."
+  tpa-sent: "{prefix}<green>Request sent to <white>{player}</white>. <gray>(/tpacancel to cancel)"
+  tpahere-sent: "{prefix}<green>Request sent: <white>{player}</white> can teleport to you. <gray>(/tpacancel to cancel)"
+  tpa-request: "{prefix}<white>{player}</white> <gray>wants to teleport to you.</gray> <click:run_command:'/tpaaccept {player}'><hover:show_text:'Click to accept'><green>[Accept]</green></hover></click> <click:run_command:'/tpadeny {player}'><hover:show_text:'Click to deny'><red>[Deny]</red></hover></click> <dark_gray>({seconds}s)"
+  tpahere-request: "{prefix}<white>{player}</white> <gray>wants you to teleport to them.</gray> <click:run_command:'/tpaaccept {player}'><hover:show_text:'Click to accept'><green>[Accept]</green></hover></click> <click:run_command:'/tpadeny {player}'><hover:show_text:'Click to deny'><red>[Deny]</red></hover></click> <dark_gray>({seconds}s)"
+  tpa-expired: "{prefix}<yellow>Your request to <white>{player}</white> expired."
+  tpa-none: "{prefix}<red>You have no pending teleport request."
+  tpa-accepted-you: "{prefix}<green>You accepted the request of <white>{player}</white>."
+  tpa-accepted: "{prefix}<green><white>{player}</white> accepted your request."
+  tpa-denied-you: "{prefix}<yellow>You denied the request of <white>{player}</white>."
+  tpa-denied: "{prefix}<red><white>{player}</white> denied your request."
+  tpa-nothing-to-cancel: "{prefix}<red>You have no request to cancel."
+  tpa-cancelled: "{prefix}<yellow>Your request to <white>{player}</white> was cancelled."
+  tpa-cancelled-target: "{prefix}<yellow><white>{player}</white> cancelled their request."
+  tpaauto-on: "{prefix}<green>Teleport requests are now accepted automatically."
+  tpaauto-off: "{prefix}<yellow>Teleport requests need your approval again."
+  tpaignore-usage: "{prefix}<red>Usage: /tpaignore <time> <gray>(e.g. 10m, 2h, 1d - or /tpaignore off)"
+  tpaignore-status: "{prefix}<gray>You ignore teleport requests for another <white>{time}</white>."
+  tpaignore-on: "{prefix}<green>You ignore all teleport requests for <white>{time}</white>."
+  tpaignore-off: "{prefix}<green>You accept teleport requests again."
+  tpa-failed-busy: "{prefix}<red>The teleport was cancelled, someone is busy."
+  tpa-teleporting: "{prefix}<yellow>Teleporting to <white>{player}</white> in <white>{seconds}s</white>, do not move..."
+  tpa-moved: "{prefix}<red>Teleport cancelled because you moved."
+  tpa-teleported: "{prefix}<green>Teleported to <white>{player}</white>. <gray>(/back to return)"
+  back-none: "{prefix}<red>There is no location to go back to."
+  back-busy: "{prefix}<red>You cannot use /back right now."
+  back-done: "{prefix}<green>Teleported back."
+  banned-you: "{prefix}<red><bold>You were banned</bold> <gray>({reason}).</gray> <red>You can still play, but you cannot see other players."
+  banned-lifted: "{prefix}<green>Your ban was lifted, you can see other players again."
+  unoffend-usage: "{prefix}<red>Usage: /unoffend <player>"
+  unoffend-done: "{prefix}<green>Lifted the ban of <white>{player}</white>."
+  unoffend-none: "{prefix}<red><white>{player}</white> is not banned."
+  rank-usage: "{prefix}<red>Usage: /v:rank <player> <set|add|remove> <rank> [time] <gray>or</gray> /v:rank editor|list|reload"
+  rank-unknown: "{prefix}<red>Unknown rank. Ranks: <white>{list}"
+  rank-bad-time: "{prefix}<red>Time must look like <white>30m</white>, <white>12h</white>, <white>7d</white> or <white>perm</white>."
+  rank-player-unknown: "{prefix}<red>I do not know a player named <white>{player}</white>."
+  rank-permanent: "permanent"
+  rank-done-set: "{prefix}<green><white>{player}</white> now has only the rank <white>{rank}</white> <gray>({time})"
+  rank-done-add: "{prefix}<green>Gave <white>{player}</white> the rank <white>{rank}</white> <gray>({time})"
+  rank-done-remove: "{prefix}<green>Removed the rank <white>{rank}</white> from <white>{player}</white>."
+  rank-notify-set: "{prefix}<green>Your rank is now <white>{rank}</white>."
+  rank-notify-add: "{prefix}<green>You were given the rank <white>{rank}</white>."
+  rank-notify-remove: "{prefix}<yellow>You lost the rank <white>{rank}</white>."
+  rank-expired: "{prefix}<yellow>Your rank <white>{rank}</white> ran out."
+  rank-editor-link: "{prefix}<green>Rank editor: <click:open_url:'{url}'><hover:show_text:'Click to open'><aqua><underlined>{url}</underlined></aqua></hover></click> <gray>(works for {minutes} minutes, only share it with admins)"
+  rank-editor-disabled: "{prefix}<red>The web editor is disabled or could not start (web.enabled / web.port in config.yml)."
+  rank-reloaded: "{prefix}<green>Rank definitions reloaded."
+  rank-list-header: "{prefix}<gray>Ranks (highest priority first):"
+  rank-list-line: "{prefix}<white>{rank}</white> <dark_gray>(priority {priority})</dark_gray> {tag}"
+  queue-not-in: "{prefix}<red>You are not in the queue."
+  queue-biome-locked: "{prefix}<red>You queued with a random biome (Auto). It cannot be changed, leave the queue and join again to pick one."
+  queue-biome-auto: "{prefix}<yellow>Biome set to <white>Auto</white> (random). It is locked now."
+  queue-biome-changed: "{prefix}<green>Queue biome changed to <white>{biome}</white>."
+  queue-biome-invalid: "{prefix}<red>Pick one of: <white>{list}</white>, or auto."
+  round-rebuilding: "{prefix}<gray>Rebuilding the arena..."
+  match-stale: "{prefix}<yellow>The server restarted while you were in a match, your match items were cleared and you were sent to spawn."

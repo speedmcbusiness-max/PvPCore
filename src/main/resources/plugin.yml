@@ -1,0 +1,123 @@
+name: VPerPlayerKit
+version: '2.1.0'
+main: dev.samar.vperplayerkit.VPerPlayerKit
+api-version: '1.21.8'
+softdepend: [PlaceholderAPI]
+author: Samar
+description: Per-player kits with kit room, editors, trimmer, banner editor, public kits and sharing.
+
+permissions:
+  perplayerkit.use:
+    description: Use /kit, kit loading, kit room, enderchest editor, share codes
+    default: true
+  perplayerkit.kitroom.admin:
+    description: Edit kit room categories and manage public kits
+    default: op
+  perplayerkit.heal:
+    description: Use /heal
+    default: op
+  perplayerkit.repair:
+    description: Use /repair
+    default: op
+  perplayerkit.regear:
+    description: Use /regear
+    default: true
+  perplayerkit.trimmer:
+    description: Use the armor trimmer in the kit editor
+    default: true
+  perplayerkit.notifications.bypass:
+    description: Do not trigger kit-load broadcasts
+    default: false
+  perplayerkit.rtpq.admin:
+    description: Set the lobby spawn
+    default: op
+  perplayerkit.tier.admin:
+    description: Use /result to set tiers
+    default: op
+  perplayerkit.totemprac.admin:
+    description: Use /admintotemprac
+    default: op
+  perplayerkit.spawn:
+    description: Use /spawn
+    default: true
+  perplayerkit.gladiator.bypass:
+    description: Host Gladiator without the tier requirement (server owner, YouTuber)
+    default: op
+  perplayerkit.match.bypass:
+    description: Use any command during a duel or Gladiator fight
+    default: op
+  perplayerkit.rtp:
+    description: Use /rtp
+    default: true
+  perplayerkit.qrtp:
+    description: Use /qrtp
+    default: true
+  perplayerkit.rtp.bypass:
+    description: Skip the /rtp cooldown
+    default: op
+  perplayerkit.ffa:
+    description: Use /ffartpq, /rtpffa, /rtpqffa
+    default: true
+  perplayerkit.ffa.admin:
+    description: Use /ffartp (wand, create, del)
+    default: op
+  perplayerkit.verify:
+    description: Use /verify and /unverify for your own account
+    default: true
+  perplayerkit.unverify.admin:
+    description: Unlink other accounts
+    default: op
+  perplayerkit.spectate:
+    description: Use /spec and /spectator
+    default: true
+  perplayerkit.event:
+    description: Join events with /event
+    default: true
+  perplayerkit.event.admin:
+    description: Open, start and close events
+    default: op
+  perplayerkit.region:
+    description: Set your own region (/region)
+    default: true
+  perplayerkit.region.admin:
+    description: Set the region of other players
+    default: op
+  perplayerkit.report:
+    description: Use /report
+    default: true
+  perplayerkit.report.bypass:
+    description: Skip the report cooldown
+    default: op
+  perplayerkit.sus:
+    description: Use /sus and get report notifications
+    default: op
+  perplayerkit.offend:
+    description: Use /offend (bans)
+    default: op
+  perplayerkit.sfmode:
+    description: Use /sfmode
+    default: op
+  perplayerkit.autocheck:
+    description: Use /damage and /autocheck
+    default: op
+  perplayerkit.freeze:
+    description: Use /freeze and /unfreeze
+    default: op
+  perplayerkit.ss:
+    description: Use /ss and /ssspawn
+    default: op
+  perplayerkit.tpa:
+    description: Use /tpa, /tpahere, /tpaauto, /tpaaccept, /tpadeny, /tpacancel, /tpaignore
+    default: true
+  perplayerkit.tpa.bypass-ignore:
+    description: Send requests to players who use /tpaignore
+    default: op
+  perplayerkit.tpa.bypass-delay:
+    description: Teleport without the tpa delay
+    default: op
+  perplayerkit.back:
+    description: Use /back
+    default: true
+  perplayerkit.rank.admin:
+    description: Use /v:rank (give ranks, open the web editor)
+    default: op

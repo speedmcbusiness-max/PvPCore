@@ -1,0 +1,270 @@
+# VPerPlayerKit dialog text. Everything is MiniMessage (<#RRGGBB>, <gray>, <bold>, <br> for a new line).
+# {placeholders} are filled in by the plugin, keep them in the text where they should appear.
+# A "tooltip" is the text shown when hovering a button; leave it empty ("") for no tooltip.
+
+common:
+  title-format: "<gradient:#FF55FF:#3799DD><bold>{title}</bold></gradient>"   # wraps every dialog title
+  close: "<red>Close"
+  back: "<yellow>Back"
+  button-width: 150
+  wide-button-width: 200
+  body-width: 300
+
+# ------------------------------------------------------------------ /rtp
+# The biomes and the world they are searched in are set in config.yml (rtp.biomes, rtpq.world), same as the queue.
+rtp:
+  title: "RTP"
+  columns: 3
+  body:
+    - "<gray>Choose a biome to random teleport to"
+  # Button order = order here. Delete a biome to hide its button.
+  buttons:
+    plains:
+      label: "<#55dd55>Plains"
+      tooltip: "Random teleport to the plains"
+    desert:
+      label: "<#ffd966>Desert"
+      tooltip: "Random teleport to the desert"
+    badlands:
+      label: "<#ff8c1a>Badlands"
+      tooltip: "Random teleport to the badlands"
+    snow:
+      label: "<#e0f4ff>Snow"
+      tooltip: "Random teleport to the snow"
+    mushroom:
+      label: "<#c58cff>Mushrooms"
+      tooltip: "Random teleport to the mushroom fields"
+
+# ------------------------------------------------------------------ RTP-Queue
+queue:
+  title: "RTP-Queue"
+  columns: 2
+  body-idle: "<gray>Ranked random-teleport duels"
+  body-queued: "<yellow>You are in the queue ({count} waiting)..."
+  select-kit:
+    label: "<#3799DD>Select-Kit"
+    tooltip: "Choose the kit you fight with"
+  join:
+    label: "<green>Join Queue"
+    tooltip: "Pick a biome and kit"
+  leave:
+    label: "<red>Leave Queue"
+    tooltip: "Stop searching for a match"
+  state:
+    label: "<#3799DD>State"
+    tooltip: "Your kills, wins and losses"
+  leaderboard:
+    label: "<#3799DD>Leaderboard"
+    tooltip: "Top players"
+  biome:
+    label: "<#3799DD>Change Biome"
+    tooltip: "Pick another biome while you wait"
+    label-locked: "<gray>Biome: Auto <dark_gray>(locked)"
+    tooltip-locked: "A random biome (Auto) cannot be changed once you queued with it"
+  history:
+    label: "<#3799DD>Match-History"
+    tooltip: "Your last 10 matches"
+  tier-info:
+    label: "<#3799DD>Tier-Info"
+    tooltip: "Your tier and test progress"
+
+join:
+  title: "Join-Queue"
+  no-kits: "<red>You have no saved kits yet.<br><gray>Use /kit to create one."
+  biome-label: "Biome"
+  kit-label: "Kit"
+  auto: "Auto"
+  # optional custom names for the biome choices, e.g. plains: "Plains Biome"
+  biome-names: {}
+  selected-kit: "Selected Kit (Kit {n})"
+  kit: "Kit {n}"
+  test-notice: "<gold>Tier test ready!<br><gray>First to 3 against a {tier}<gray> player."
+  cancel: "<red>Cancel"
+  join:
+    label: "<green>Join"
+    tooltip: "Start searching"
+
+state:
+  title: "State"
+  line: "<white>{player} <dark_gray>| {tier}"
+  hint: "<gray>Click a stat to open its leaderboard"
+  kills:
+    label: "<#3799DD>Kills: <white>{value}"
+    tooltip: "Open the kills leaderboard"
+  victory:
+    label: "<#3799DD>Victory: <white>{value}"
+    tooltip: "Open the victory leaderboard"
+  defeat:
+    label: "<#3799DD>Defeat: <white>{value}"
+    tooltip: "Open the defeat leaderboard"
+  matchplayed:
+    label: "<#3799DD>Match-Played: <white>{value}"
+    tooltip: "Open the match played leaderboard"
+
+leaderboard-menu:
+  title: "Leaderboard"
+  body: "<gray>Select a category to view the leaderboard"
+  overall: "<#3799DD>Overall"
+  kills: "<#3799DD>Kills"
+  victory: "<#3799DD>Victory"
+  defeat: "<#3799DD>Defeat"
+  matchplayed: "<#3799DD>Match-Played"
+
+leaderboard:
+  title: "Leaderboard - {category}"
+  category-names:
+    overall: "Overall"
+    kills: "Kills"
+    victory: "Victory"
+    defeat: "Defeat"
+    matchplayed: "Match-Played"
+  entry: "{color}{rank}# <dark_gray>| <white>{name} <dark_gray>: <yellow>{value} <gray>({tier}<gray>)"
+  empty: "<dark_gray>{rank}# | -"
+  separator: "<dark_gray>-----------------"
+  own: "<green>{rank}# <dark_gray>| <white>{name} <dark_gray>: <yellow>{value} <gray>({tier}<gray>)"
+  value-points: "{points} pts"
+  colors:
+    first: "<gold>"
+    second: "<#c0c0c0>"
+    third: "<#cd7f32>"
+    other: "<gray>"
+
+history:
+  title: "Match-History"
+  empty: "<gray>No matches played yet."
+  line: "{color}{my} : {opp} <dark_gray>| <white>{mytier} {myname} <gray>V/S <white>{opptier} {oppname}{test}"
+  win-color: "<green>"
+  loss-color: "<red>"
+  test-suffix: " <gold>[Test]"
+  hover: "<gray>Played {ago}<br><dark_gray>{date}"
+  date-format: "yyyy-MM-dd HH:mm 'UTC'"
+  ago:
+    seconds: "{n} seconds ago"
+    minutes: "{n} minutes ago"
+    hours: "{n} hours ago"
+    days: "{n} days ago"
+
+tier-info:
+  title: "Tier-Info"
+  player: "<white>{player} <dark_gray>| {tier}"
+  test: "<gold>Tier-Test: {bar} <white>{percent}%"
+  test-ready: "<green>Tier test ready! <gray>Chances left: <white>{chances}"
+  max-tier: "<gold>Tier-Test: <white>Maximum tier reached"
+  current: "<gray>Current-Tier: {tier} <dark_gray>({points} pts)"
+  next: "<gray>Next-Tier: {tier} <dark_gray>({points} pts)"
+  next-none: "<gray>Next-Tier: <white>None"
+  bar:
+    character: "█"
+    filled-color: "<green>"
+    empty-color: "<dark_gray>"
+
+# ------------------------------------------------------------------ Gladiator
+gladiator:
+  main:
+    title: "Gladiator"
+    teams: "<gray>Your team: <white>{a}/{sizeA}</white> <dark_gray>|</dark_gray> <gray>Opponents: <white>{b}/{sizeB}"
+    mode-line: "<gray>{mode} <dark_gray>|</dark_gray> {status}"
+    solo: "Solo mode"
+    team: "Team mode"
+    status-setup: "<yellow>Not opened yet"
+    status-open: "<green>Open for opponents"
+    kit-note: "<dark_gray>You pick your kit here. Teammates and opponents pick theirs in the Kit Menu."
+    no-kits: "<red>You have no saved kits yet. Use /kit to create one."
+    biome-label: "Biome"
+    kit-label: "Kit"
+    auto: "Auto"
+    selected-kit: "Selected Kit (Kit {n})"
+    kit: "Kit {n}"
+    locked-info: "<gray>Biome: <white>{biome} <dark_gray>|</dark_gray> <gray>Kit: <white>{kit}"
+    your-team:
+      label: "<#3799DD>Your Team"
+      tooltip: "View Your Teammate"
+    opponent:
+      label: "<#3799DD>Opponent"
+      tooltip: "View Opponent Team"
+    settings:
+      label: "<#3799DD>Settings"
+      tooltip: "Manage Match Setting"
+    create:
+      label: "<green>Create"
+      tooltip: "Open the match so opponents can join"
+    disband:
+      label: "<red>Disband"
+      tooltip: "Cancel this match"
+  team:
+    title: "YourTeam"
+    teammate: "<gray>Teammate {n}: <white>{name}{host}"
+    host-marker: " <gold>(host)"
+    empty: "<dark_gray>Teammate {n}: <gray>Empty"
+    invited: "<gray>Invited: <white>{names}"
+    add-friend:
+      label: "<green>add friend"
+      tooltip: "Invite a player to your team"
+  add-friend:
+    title: "Add Friend"
+    body: "<gray>Type the name of an online player. They get a message to accept."
+    input-label: "Player name"
+    cancel: "<red>Cancel"
+    add:
+      label: "<green>Add"
+      tooltip: "Send the invite"
+  opponent:
+    title: "OpponentTeam"
+    none: "<gray>No opponents yet <dark_gray>(0/{size})"
+    line: "<gray>Opponent {n}: <white>{name}"
+    page: "<dark_gray>Page {page}/{pages} | {joined}/{size} joined"
+    more:
+      label: "<#3799DD>more"
+      tooltip: "Show more opponents"
+  settings:
+    title: "Settings"
+    locked: "<red>Settings are locked once the match is open."
+    your-team:
+      label: "<#3799DD>Your Team Setting"
+      tooltip: "Size, blast protection and elytra for your team"
+    opponent:
+      label: "<#3799DD>Opponent-Settings"
+      tooltip: "Size, blast protection and elytra for the opponents"
+  team-settings:
+    title-your: "Your Team Settings"
+    title-opponent: "Opponent Team Settings"
+    size-your: "Your team size"
+    size-opponent: "Opponent team size"
+    blast-label: "BlastProt"
+    single: "Single"
+    double: "Double"
+    elytra-label: "Elytra"
+    "no": "No"
+    "yes": "Yes"
+    note: "<gray>Back saves the changes, Close discards them."
+    back-tooltip: "Save and go back"
+  match-list:
+    title: "Gladiator Matches"
+    empty: "<gray>There are no open Gladiator matches right now."
+    body: "<gray>Pick a match to join"
+    button: "<#3799DD>{host} <gray>({a} vs {b})"
+    tip-invited: "You were invited to this team"
+    tip-open: "Join as an opponent ({joined}/{size})"
+
+# ------------------------------------------------------------------ /report
+report:
+  title: "Report {player}"
+  body:
+    - "<gray>Choose a reason, or type your own below."
+  reason-label: "Reason"
+  custom-label: "Custom reason (optional)"
+  cancel: "<red>Cancel"
+  confirm:
+    label: "<green>Confirm"
+    tooltip: "Send the report to the staff"
+
+# ------------------------------------------------------------------ change biome while queued
+biome-change:
+  title: "Change Biome"
+  body: "<gray>Current biome: <white>{biome}"
+  warning: "<dark_gray>Picking Auto (random biome) locks it, you cannot change it afterwards."
+  label: "Biome"
+  cancel: "<red>Cancel"
+  apply:
+    label: "<green>Apply"
+    tooltip: "Change the biome of your queue entry"

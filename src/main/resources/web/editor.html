@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VPerPlayerKit - Rank editor</title>
+<style>
+  :root { color-scheme: dark; }
+  body { font-family: system-ui, sans-serif; background: #14111f; color: #e9e6f5; margin: 0; padding: 24px; }
+  h1 { margin: 0 0 4px; font-size: 22px; background: linear-gradient(90deg,#ff55ff,#3799dd); -webkit-background-clip: text; color: transparent; }
+  p.hint { color: #9b94b8; margin: 0 0 18px; font-size: 14px; }
+  table { border-collapse: collapse; width: 100%; max-width: 1100px; }
+  th { text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: #9b94b8; padding: 6px 8px; }
+  td { padding: 6px 8px; vertical-align: middle; }
+  input { background: #211c33; color: #e9e6f5; border: 1px solid #3a3358; border-radius: 6px; padding: 7px 9px; width: 100%; box-sizing: border-box; }
+  input.num { width: 80px; }
+  input[readonly] { opacity: .6; }
+  button { background: #3799dd; color: #fff; border: 0; border-radius: 6px; padding: 9px 16px; cursor: pointer; font-weight: 600; }
+  button.add { background: #2d2748; }
+  button.del { background: #7a2a3a; padding: 7px 11px; }
+  .preview { background: #000; padding: 6px 10px; border-radius: 6px; font-family: 'Courier New', monospace; font-weight: bold; white-space: nowrap; min-width: 120px; }
+  .bar { margin-top: 16px; display: flex; gap: 10px; align-items: center; }
+  #status { font-size: 14px; }
+  .ok { color: #55ff55; } .err { color: #ff5555; }
+</style>
+</head>
+<body>
+<h1>Rank editor</h1>
+<p class="hint">Tag text accepts &amp; colors and hex colors, e.g. <code>&amp;#FF0000&amp;lOWNER</code>. The rank with the highest priority is shown in the nametag.
+Optional commands run in the console, <code>{player}</code> is the player name (e.g. add/remove a permission group).</p>
+<table id="table">
+  <thead><tr><th>Key</th><th>Tag</th><th>Preview</th><th>Priority</th><th>Command when added</th><th>Command when removed</th><th></th></tr></thead>
+  <tbody></tbody>
+</table>
+<div class="bar">
+  <button class="add" onclick="addRow()">+ Add rank</button>
+  <button onclick="save()">Save</button>
+  <span id="status"></span>
+</div>
+<script>
+const token = new URLSearchParams(location.search).get('token');
+const COLORS = {'0':'#000000','1':'#0000AA','2':'#00AA00','3':'#00AAAA','4':'#AA0000','5':'#AA00AA','6':'#FFAA00','7':'#AAAAAA',
+  '8':'#555555','9':'#5555FF','a':'#55FF55','b':'#55FFFF','c':'#FF5555','d':'#FF55FF','e':'#FFFF55','f':'#FFFFFF'};
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function render(tag){
+  let out = '', color = '#FFFFFF', styles = '';
+  const re = /&(#[0-9a-fA-F]{6}|[0-9a-fk-orA-FK-OR])|([^&]+|&)/g; let m;
+  while ((m = re.exec(tag))) {
+    if (m[1]) {
+      const c = m[1].toLowerCase();
+      if (c[0] === '#') { color = c; styles = ''; }
+      else if (COLORS[c]) { color = COLORS[c]; styles = ''; }
+      else if (c === 'l') styles += 'font-weight:900;';
+      else if (c === 'n') styles += 'text-decoration:underline;';
+      else if (c === 'm') styles += 'text-decoration:line-through;';
+      else if (c === 'o') styles += 'font-style:italic;';
+      else if (c === 'r') { color = '#FFFFFF'; styles = ''; }
+    } else out += '<span style="color:' + color + ';' + styles + '">' + esc(m[2]) + '</span>';
+  }
+  return out;
+}
+function row(r, isNew){
+  const tr = document.createElement('tr');
+  tr.innerHTML = '<td><input class="key" ' + (isNew ? '' : 'readonly') + ' value="' + esc(r.key) + '" placeholder="rank key"></td>' +
+    '<td><input class="tag" value="' + esc(r.tag) + '"></td><td><div class="preview"></div></td>' +
+    '<td><input class="num priority" type="number" value="' + r.priority + '"></td>' +
+    '<td><input class="onAdd" value="' + esc(r.onAdd) + '" placeholder="optional"></td>' +
+    '<td><input class="onRemove" value="' + esc(r.onRemove) + '" placeholder="optional"></td>' +
+    '<td><button class="del" onclick="this.closest(\'tr\').remove()">Delete</button></td>';
+  const tag = tr.querySelector('.tag'), prev = tr.querySelector('.preview');
+  const upd = () => prev.innerHTML = render(tag.value);
+  tag.addEventListener('input', upd); upd();
+  document.querySelector('#table tbody').appendChild(tr);
+}
+function addRow(){ row({key:'', tag:'&#FFFFFF&lNEW', priority:10, onAdd:'', onRemove:''}, true); }
+function status(text, ok){ const s = document.getElementById('status'); s.textContent = text; s.className = ok ? 'ok' : 'err'; }
+async function load(){
+  const res = await fetch('/api/ranks?token=' + encodeURIComponent(token));
+  if (!res.ok) { status('This link expired. Run /v:rank editor in game for a new one.', false); return; }
+  (await res.json()).forEach(r => row(r, false));
+}
+async function save(){
+  const ranks = [...document.querySelectorAll('#table tbody tr')].map(tr => ({
+    key: tr.querySelector('.key').value.trim().toLowerCase(), tag: tr.querySelector('.tag').value,
+    priority: parseInt(tr.querySelector('.priority').value || '0', 10),
+    onAdd: tr.querySelector('.onAdd').value, onRemove: tr.querySelector('.onRemove').value })).filter(r => r.key);
+  const res = await fetch('/api/ranks?token=' + encodeURIComponent(token), {method:'POST', body: JSON.stringify(ranks)});
+  status(res.ok ? 'Saved! Nametags are updated.' : 'Could not save (is the link still valid?)', res.ok);
+}
+load();
+</script>
+</body>
+</html>

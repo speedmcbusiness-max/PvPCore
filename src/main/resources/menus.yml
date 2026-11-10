@@ -1,0 +1,238 @@
+# VPerPlayerKit menu configuration. Text supports MiniMessage (<#RRGGBB>, <gray>, <bold> ...)
+# Materials must be valid Bukkit material names.
+
+glass:
+  material: GRAY_STAINED_GLASS_PANE
+  name: " "
+
+kit-menu:
+  title: "<#FF55FF>Kit Menu"
+  import-title: "<#FF55FF>Import Kit - choose a slot"
+  select-title: "<#FF55FF>Select Kit - left click a kit"
+  # Slot of kit 1, 2, 3 ... 14 (6 row menu, slots 0-53). Kits 1-7 match the classic layout,
+  # raise max-kits in config.yml to use the rest.
+  slots: [10, 12, 14, 16, 29, 31, 33, 19, 21, 23, 25, 38, 40, 42]
+  kit:
+    material: BOOK
+    name: "<#3799DD>Kit {n}"
+    lore:
+      - "<gray>Left click: <white>load"
+      - "<gray>Right click: <white>edit"
+      - "<gray>Shift click: <white>enderchest"
+  kit-empty:
+    material: BOOK
+    name: "<#3799DD>Kit {n} <dark_gray>(empty)"
+    lore:
+      - "<gray>Right click: <white>edit"
+      - "<gray>Shift click: <white>enderchest"
+  kit-selected:
+    material: PAPER
+    name: "<#3799DD>Kit {n}"
+    lore:
+      - "<green>Selected"
+  kit-import:
+    material: BOOK
+    name: "<#3799DD>Kit {n}"
+    lore:
+      - "<gray>Click to import the shared kit here"
+      - "<red>This overwrites the kit!"
+  # slot: -1 hides a button
+  kit-room:
+    slot: 49
+    material: CHEST
+    name: "<#3799DD>Kit Room"
+  rtp-queue:
+    slot: -1
+    material: COMPASS
+    name: "<#3799DD>RTP Queue"
+    lore: ["<gray>Open the ranked queue"]
+  public-kits:
+    slot: -1
+    material: NETHERITE_CHESTPLATE
+    name: "<#3799DD>Public Kits"
+  back:
+    slot: 49
+    material: ARROW
+    name: "<#FFFF00>Back"
+  cancel:
+    material: BARRIER
+    name: "<red>Cancel"
+
+editor:
+  title-kit: "<#FF55FF>Editing: Kit {n}"
+  title-public: "<#FF55FF>Edit: {name}"
+  import:
+    material: CHEST
+    name: "<#3799DD>Import Inventory"
+    lore: ["<gray>Copy your current inventory here"]
+  trim:
+    material: SENTRY_ARMOR_TRIM_SMITHING_TEMPLATE
+    name: "<#3799DD>Armor Trimmer"
+    lore: ["<gray>Apply a trim to the armor in this kit"]
+  banner:
+    material: WHITE_BANNER
+    name: "<#3799DD>Kit Banner"
+    lore: ["<gray>Design the icon shown in the Kit Menu"]
+  share:
+    material: WRITABLE_BOOK
+    name: "<#3799DD>Share Kit"
+    lore: ["<gray>Create a share code for this kit"]
+  reset:
+    material: ANVIL
+    name: "<#FA1B00>Reset"
+    lore: ["<gray>Clear everything in the editor"]
+  save:
+    material: LIME_DYE
+    name: "<#18FA00>Save"
+  back:
+    material: ARROW
+    name: "<#FFFF00>Back"
+
+enderchest:
+  title: "<#FF55FF>Enderchest: {n}"
+  import:
+    material: ENDER_CHEST
+    name: "<#3799DD>Import From Ender Chest"
+  save:
+    material: LIME_DYE
+    name: "<#18FA00>Save"
+  reset:
+    material: ANVIL
+    name: "<#FA1B00>Reset"
+  back:
+    material: ARROW
+    name: "<#FFFF00>Back"
+
+kit-room:
+  title-normal: "<#FF55FF>Kitroom"
+  title-category: "<#FF55FF>Kitroom: {category}"
+  title-admin: "<#FF55FF>Kitroom (Edit: {category})"
+  refill:
+    material: BARREL
+    name: "<#3799DD>Refill"
+    lore: ["<gray>Refill every stack in your inventory"]
+  fill-totem:
+    material: TOTEM_OF_UNDYING
+    name: "<#3799DD>Fill Totem"
+    lore: ["<gray>Fill empty inventory slots with totems"]
+  save:
+    material: LIME_DYE
+    name: "<#18FA00>Save"
+  back:
+    material: ARROW
+    name: "<#FFFF00>Back"
+  # Slots of the category icons on the main Kitroom screen (in category order)
+  category-slots: [11, 13, 15, 29, 31, 33]
+  # Up to 6 categories. Rename, reorder, remove or add; "display" is the name shown in the item title.
+  categories:
+    armor:
+      material: NETHERITE_HELMET
+      name: "<#3799DD>Armor"
+      display: "Armor"
+    weapons:
+      material: NETHERITE_SWORD
+      name: "<#3799DD>Weapons"
+      display: "Weapons"
+    totems:
+      material: TOTEM_OF_UNDYING
+      name: "<#3799DD>Totems"
+      display: "Totems"
+    potions:
+      material: POTION
+      name: "<#3799DD>Potions"
+      display: "Potions"
+    utility:
+      material: LAVA_BUCKET
+      name: "<#3799DD>Utility"
+      display: "Utility"
+    miscellaneous:
+      material: PURPLE_SHULKER_BOX
+      name: "<#3799DD>Miscellaneous"
+      display: "Miscellaneous"
+
+public-kits:
+  title: "<#FF55FF>Public Kits"
+  kit:
+    material: BOOK
+    name: "<#3799DD>{name}"
+    lore: ["<gray>Click to load"]
+  back:
+    material: ARROW
+    name: "<#FFFF00>Back"
+
+import:
+  title: "<#FF55FF>Import Kit"
+  import:
+    material: LIME_DYE
+    name: "<#18FA00>Import"
+    lore: ["<gray>Choose which kit slot to import into"]
+  close:
+    material: BARRIER
+    name: "<red>Close"
+
+trim:
+  title: "<#FF55FF>Select Trim"
+  selected-lore: "<green>Selected"
+  apply:
+    material: LIME_DYE
+    name: "<#18FA00>Apply Trim"
+  remove:
+    material: SHEARS
+    name: "<#FA1B00>Remove Trims"
+  back:
+    material: ARROW
+    name: "<#FFFF00>Back"
+
+banner:
+  title: "<#FF55FF>Select Banner"
+  preview:
+    material: WHITE_BANNER
+    name: "<#FFFF00>Preview"
+  undo:
+    material: BARRIER
+    name: "<#FA1B00>Undo Last Layer"
+  reset:
+    material: ANVIL
+    name: "<#FA1B00>Reset"
+  save:
+    material: LIME_DYE
+    name: "<#18FA00>Save As Kit Icon"
+  prev:
+    material: ARROW
+    name: "<#3799DD>Previous Page"
+  next:
+    material: ARROW
+    name: "<#3799DD>Next Page"
+  back:
+    material: ARROW
+    name: "<#FFFF00>Back"
+
+# ------------------------------------------------------------------ /sus (reported players)
+sus:
+  title: "<#FF55FF>Reported Players <dark_gray>({page}/{pages})"
+  entry:
+    name: "<red>{player}"
+    lore:
+      - "<gray>Reports: <white>{count}"
+      - "<gray>Last report: <white>{ago} ago <dark_gray>by {last-reporter}"
+      - ""
+      - "<gray>Reasons:"
+      - "{reasons}"
+      - ""
+      - "<yellow>Left click: <white>teleport to them"
+      - "<yellow>Right click: <white>clear their reports"
+      - "<yellow>Shift click: <white>/ss them"
+  reason-line: "<dark_gray>- <white>{reason} <dark_gray>x{count}"
+  max-reason-lines: 6
+  empty:
+    material: BARRIER
+    name: "<gray>No reports right now"
+  prev:
+    material: ARROW
+    name: "<#3799DD>Previous Page"
+  next:
+    material: ARROW
+    name: "<#3799DD>Next Page"
+  refresh:
+    material: CLOCK
+    name: "<#3799DD>Refresh"
